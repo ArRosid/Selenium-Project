@@ -51,14 +51,14 @@ for _ in range(3):
         location = job.find_element_by_xpath('.//li[@class="job-location"]/span').text
         salary = job.find_element_by_xpath('.//li[@id="job_salary"]/font').text
 
-        if title:
-            data = {}
-            data['Title'] = title,
-            data['Company'] = company,
-            data['Location'] = location,
-            data['Salary'] = salary
+        # if title:
+        data = {}
+        data['Title'] = title,
+        data['Company'] = company,
+        data['Location'] = location,
+        data['Salary'] = salary
 
-            df = df.append(data, ignore_index=True)
+        df = df.append(data, ignore_index=True)
 
     # go to next page
     time.sleep(5)
