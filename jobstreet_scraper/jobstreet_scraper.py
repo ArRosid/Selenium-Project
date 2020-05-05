@@ -1,8 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
+import pandas as pd
 import time
 import os
+
+
+df = pd.DataFrame(columns=['Title', 'Company', 'Location', 'Salary'])
 
 chrome_options = Options()
 chrome_options.add_argument('--incognito')
@@ -37,7 +41,7 @@ time.sleep(5)
 # get all jobs
 all_jobs = browser.find_elements_by_xpath('//div[@class="panel "]')
 for job in all_jobs:
-    title = job.find_element_by_xpath('.//a[@class="position-title-link"]').text
+    title = job.find_element_by_xpath('.//a[@class="position-title-link"]/h2').text
     try:
         company = job.find_element_by_xpath('.//a[@class="company-name"]/span').text
     except:
@@ -46,9 +50,16 @@ for job in all_jobs:
     location = job.find_element_by_xpath('.//li[@class="job-location"]/span').text
     salary = job.find_element_by_xpath('.//li[@id="job_salary"]/font').text
 
-    print({
-        'title': title,
-        'company': company,
-        'location': location,
-        'salary': salary
-    })
+    if title:
+        data = {}
+        data['Title'] = title,
+        data['Company'] = company,
+        data['Location'] = location,
+        data['Salary'] = salary
+
+        df = df.append(data, ignore_index=True)
+
+df.index += 1
+
+df.to_csv('jobstreet_scraper/programmer_jobs_first_page.csv')
+print(df.head())
