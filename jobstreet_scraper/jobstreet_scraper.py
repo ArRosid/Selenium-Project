@@ -38,28 +38,35 @@ select = Select(browser.find_element_by_id('sort_result'))
 select.select_by_visible_text('Date')
 time.sleep(5)
 
-# get all jobs
-all_jobs = browser.find_elements_by_xpath('//div[@class="panel "]')
-for job in all_jobs:
-    title = job.find_element_by_xpath('.//a[@class="position-title-link"]/h2').text
-    try:
-        company = job.find_element_by_xpath('.//a[@class="company-name"]/span').text
-    except:
-        company = "Company Confidential"
+for _ in range(3):
+    # get all jobs
+    all_jobs = browser.find_elements_by_xpath('//div[@class="panel "]')
+    for job in all_jobs:
+        title = job.find_element_by_xpath('.//a[@class="position-title-link"]/h2').text
+        try:
+            company = job.find_element_by_xpath('.//a[@class="company-name"]/span').text
+        except:
+            company = "Company Confidential"
 
-    location = job.find_element_by_xpath('.//li[@class="job-location"]/span').text
-    salary = job.find_element_by_xpath('.//li[@id="job_salary"]/font').text
+        location = job.find_element_by_xpath('.//li[@class="job-location"]/span').text
+        salary = job.find_element_by_xpath('.//li[@id="job_salary"]/font').text
 
-    if title:
-        data = {}
-        data['Title'] = title,
-        data['Company'] = company,
-        data['Location'] = location,
-        data['Salary'] = salary
+        if title:
+            data = {}
+            data['Title'] = title,
+            data['Company'] = company,
+            data['Location'] = location,
+            data['Salary'] = salary
 
-        df = df.append(data, ignore_index=True)
+            df = df.append(data, ignore_index=True)
 
+    # go to next page
+    time.sleep(5)
+    browser.find_element_by_id('page_next').click()
+
+
+# set the index to start from 1
 df.index += 1
 
-df.to_csv('jobstreet_scraper/programmer_jobs_first_page.csv')
+df.to_csv('jobstreet_scraper/programmer_jobs_first_3_page.csv')
 print(df.head())
