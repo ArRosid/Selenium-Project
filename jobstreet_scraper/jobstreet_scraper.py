@@ -6,7 +6,10 @@ import time
 import os
 
 
-df = pd.DataFrame(columns=['Title', 'Company', 'Location', 'Salary'])
+# initialize start time
+start_time = time.time()
+
+df = pd.DataFrame(columns=['Title', 'Company', 'Location', 'Salary', 'Posted'])
 
 chrome_options = Options()
 chrome_options.add_argument('--incognito')
@@ -38,7 +41,7 @@ select = Select(browser.find_element_by_id('sort_result'))
 select.select_by_visible_text('Date')
 time.sleep(5)
 
-for _ in range(3):
+while True:
     # get all jobs
     all_jobs = browser.find_elements_by_xpath('//div[@class="panel "]')
     for job in all_jobs:
@@ -49,7 +52,12 @@ for _ in range(3):
             company = "Company Confidential"
 
         location = job.find_element_by_xpath('.//li[@class="job-location"]/span').text
-        salary = job.find_element_by_xpath('.//li[@id="job_salary"]/font').text
+        try:
+            salary = job.find_element_by_xpath('.//li[@id="job_salary"]/font').text
+        except:
+            salary = ''
+
+        posted = job.find_element_by_xpath('.//span[@class="job-date-text text-muted"]').text
 
         # if title:
         data = {}
@@ -57,16 +65,29 @@ for _ in range(3):
         data['Company'] = company,
         data['Location'] = location,
         data['Salary'] = salary
+        data['Posted'] = posted
+        print(data)
 
         df = df.append(data, ignore_index=True)
 
     # go to next page
     time.sleep(5)
-    browser.find_element_by_id('page_next').click()
+    try:
+        next_page = browser.find_element_by_id('page_next')
+    except:
+        next_page = None
+
+    if next_page:
+        next_page.click()
+    else:
+        break
 
 
 # set the index to start from 1
 df.index += 1
 
-df.to_csv('jobstreet_scraper/programmer_jobs_first_3_page.csv')
+df.to_csv('jobstreet_scraper/programmer_jobs_all_pages.csv')
+
+elapsed_time = time.time() - start_time
+print(f"The program is done in {elapsed_time} seconds")
 print(df.head())
